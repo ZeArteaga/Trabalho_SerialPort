@@ -52,7 +52,7 @@ int main(int argc, char** argv)
     newtio.c_lflag = 0;
 
     newtio.c_cc[VTIME]    = 1;   /* inter-character timer unused */
-    newtio.c_cc[VMIN]     = 5;   /* blocking read until VMIN chars received */
+    newtio.c_cc[VMIN]     = 0;   /* blocking read until VMIN chars received */
 
 
 
@@ -71,8 +71,8 @@ int main(int argc, char** argv)
 
     printf("New termios structure set\n");
 
-	unsigned char Set[5]= {0x5C01, 0x03, 0x02, 0x5C};
-
+	unsigned char Set[5]= {0x5C, 0x01, 0x03, 0x02, 0x5C};
+	
     for (i = 0; i < 255; i++) {
         buf[i] = 'a';
     }
@@ -80,9 +80,19 @@ int main(int argc, char** argv)
     /*testing*/
     buf[25] = '\n';
 
-    res = write(fd,Set,5);
+	
+	volatile int STOP=FALSE, int i=0;
+	while(STOP==FALSE) 
+	{
+		res = write(fd,Set[i],1);
+		if(res>0)
+			i++;
+		if(i==5)
+			STOP = TRUE;
+		
+	}
     printf("%d bytes written\n", res);
-	printf("\n%X\n", Set);
+	
 
     /*
     O ciclo FOR e as instruções seguintes devem ser alterados de modo a respeitar
